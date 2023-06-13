@@ -13,6 +13,7 @@ import {
   ParseUUIDPipe,
   ValidationPipe,
   SetMetadata,
+  BadRequestException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -40,8 +41,8 @@ export class UserController {
     @User(new ValidationPipe({ validateCustomDecorators: true }))
     user: CreateUserDto,
   ) {
-    console.log(user);
-    console.log(this.cfg.get('TYPE'));
+    console.log('--Current user: ', user);
+    console.log('--NODE_ENV: ', this.cfg.get('TYPE'));
     return this.userService.findAll();
   }
 

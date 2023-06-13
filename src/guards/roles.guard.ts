@@ -6,12 +6,15 @@ import { Role } from 'src/enums/role.enum';
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
-  canActivate(context: ExecutionContext): boolean {
-    const roles = this.reflector.get<Role[]>('roles', context.getHandler());
+  canActivate(ctx: ExecutionContext): boolean {
+    const roles = this.reflector.getAllAndMerge<Role[]>('roles', [
+      ctx.getHandler(),
+      ctx.getClass(),
+    ]);
     if (!roles) {
       return true;
     }
-    const request = context.switchToHttp().getRequest();
+    const request = ctx.switchToHttp().getRequest();
     const user = request.user;
     return this.matchRoles(roles, user?.roles || []);
   }

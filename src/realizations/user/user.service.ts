@@ -1,26 +1,23 @@
-import { Inject, Injectable, OnModuleInit, Scope } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ProductItemService } from 'src/realizations/product-item/product-item.service';
-import { ContextIdFactory, ModuleRef, REQUEST } from '@nestjs/core';
+import { REQUEST } from '@nestjs/core';
 
 @Injectable({ scope: Scope.REQUEST, durable: true })
-export class UserService implements OnModuleInit {
-  private productItemService: ProductItemService;
-
-  constructor(private moduleRef: ModuleRef, @Inject(REQUEST) private request) {}
-
-  onModuleInit() {
-    this.productItemService = this.moduleRef.get(ProductItemService);
-  }
+export class UserService {
+  constructor(
+    @Inject(REQUEST) private request,
+    private productItemService: ProductItemService,
+  ) {}
 
   create(createUserDto: CreateUserDto) {
     return 'This action adds a new user';
   }
 
   findAll() {
-    console.log(this.productItemService.findAll());
-    console.log(this.request);
+    console.log(this.productItemService.findOne(1));
+    console.log('--Request (tenant-strategy):', this.request);
     return `This action returns all user`;
   }
 
