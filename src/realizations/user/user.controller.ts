@@ -18,10 +18,10 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Roles } from 'src/decorators/roles.decorator';
-import { Role } from 'src/enums/role.enum';
-import { User } from 'src/decorators/reqUser.decorator';
-import { ConfigService } from 'src/modules/config/config.service';
+import { Roles } from '../../decorators/roles.decorator';
+import { Role } from '../../enums/role.enum';
+import { User } from '../../decorators/reqUser.decorator';
+import { ConfigService } from '../../modules/config/config.service';
 
 @Controller('user')
 export class UserController {

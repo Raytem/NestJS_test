@@ -10,8 +10,8 @@ import {
 import { ProductItemService } from './product-item.service';
 import { CreateProductItemDto } from './dto/create-product-item.dto';
 import { UpdateProductItemDto } from './dto/update-product-item.dto';
-import { Roles } from 'src/decorators/roles.decorator';
-import { Role } from 'src/enums/role.enum';
+import { Roles } from '../../decorators/roles.decorator';
+import { Role } from '../../enums/role.enum';
 
 @Roles(Role.USER)
 @Controller('product-item')

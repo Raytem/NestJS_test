@@ -2,8 +2,8 @@ import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Inject, Injectable } from '@nestjs/common';
-import { IConfigModuleOptions } from 'src/interfaces/config-module-options.interface';
-import { EnvConfig } from 'src/interfaces/env-config.interface';
+import { IConfigModuleOptions } from '../../interfaces/config-module-options.interface';
+import { EnvConfig } from '../../interfaces/env-config.interface';
 import { MODULE_OPTIONS_TOKEN } from './config.module-definition';
 
 @Injectable()

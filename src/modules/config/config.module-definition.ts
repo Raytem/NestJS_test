@@ -1,5 +1,5 @@
 import { ConfigurableModuleBuilder } from '@nestjs/common';
-import { IConfigModuleOptions } from 'src/interfaces/config-module-options.interface';
+import { IConfigModuleOptions } from '../../interfaces/config-module-options.interface';
 
 export const {
   ConfigurableModuleClass,

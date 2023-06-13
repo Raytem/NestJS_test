@@ -1,7 +1,7 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ProductItemService } from 'src/realizations/product-item/product-item.service';
+import { ProductItemService } from '../product-item/product-item.service';
 import { REQUEST } from '@nestjs/core';
 
 @Injectable({ scope: Scope.REQUEST, durable: true })
