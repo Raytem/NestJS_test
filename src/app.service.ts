@@ -5,6 +5,6 @@ import { ProductItemService } from './realizations/product-item/product-item.ser
 @Injectable()
 export class AppService {
   getHello(): string {
-    return 'Hello World!';
+    return 'Welcome to the nest-test_1 project!';
   }
 }

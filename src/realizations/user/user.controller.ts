@@ -14,6 +14,15 @@ import {
   ValidationPipe,
   SetMetadata,
   BadRequestException,
+  Inject,
+  UsePipes,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  CacheTTL,
+  Logger,
+  Res,
+  Query,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -21,49 +30,76 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Roles } from '../../decorators/roles.decorator';
 import { Role } from '../../enums/role.enum';
 import { User } from '../../decorators/reqUser.decorator';
-import { ConfigService } from '../../modules/config/config.service';
+import { ConfigService, ConfigType } from '@nestjs/config';
+import { databaseConfig } from 'config/database.config';
+import { Cache } from 'cache-manager';
+import { HttpCacheInterceptor } from 'src/interceptors/httpCache.interceptor';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { MyLoggerService } from 'src/my-logger/my-logger.service';
+import { Cookies } from 'src/decorators/cookies.decorator';
+import { Response } from 'express';
 
-@Controller('user')
+@Controller({ path: 'user' })
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly cfg: ConfigService,
+
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache,
+
+    @Inject(databaseConfig.KEY)
+    private readonly dbConfig: ConfigType<typeof databaseConfig>,
   ) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    return await this.userService.create(createUserDto);
   }
 
   @Get()
   @Roles(Role.ADMIN)
-  findAll(
+  async findAll(
     @User(new ValidationPipe({ validateCustomDecorators: true }))
     user: CreateUserDto,
   ) {
     console.log('--Current user: ', user);
-    console.log('--NODE_ENV: ', this.cfg.get('TYPE'));
-    return this.userService.findAll();
+    return await this.userService.findAll();
   }
 
+  @Get('setCookies')
+  async setCookies(@Res({ passthrough: true }) res: Response) {
+    res.cookie('name', 'some', { httpOnly: true, maxAge: 40000 });
+    return 0;
+  }
+
+  // @UseInterceptors(HttpCacheInterceptor)
+  // @CacheTTL(1000 * 10)
   @Get(':id')
   @Roles(Role.ADMIN, Role.MANAGER)
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.userService.findOne(id);
+  async findOne(@Param('id', ParseIntPipe) id: number, @Cookies() cookies) {
+    console.log(JSON.stringify(cookies));
+    return await this.userService.findOne(id);
+  }
+
+  @Get(':id/cartItems')
+  @Roles(Role.USER)
+  async getCartItems(@Param('id', ParseIntPipe) id: number) {
+    return 'cartItems';
   }
 
   @Roles(Role.ADMIN, Role.MANAGER, Role.USER)
   @Patch(':id')
-  update(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.userService.update(id, updateUserDto);
+    return await this.userService.update(id, updateUserDto);
   }
 
   @Roles(Role.ADMIN, Role.MANAGER, Role.USER)
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.userService.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.remove(id);
   }
 }

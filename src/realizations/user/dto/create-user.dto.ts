@@ -1,15 +1,17 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsInt, IsString } from 'class-validator';
-import { Role } from '../../../enums/role.enum';
+import { IsDate, IsString } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
   name: string;
 
-  @IsInt()
-  age: number;
+  @IsString()
+  surname: string;
 
-  @IsArray()
-  @Type(() => String)
-  roles: Role[];
+  @Type(() => Date)
+  @IsDate()
+  birthday: Date;
+
+  @IsString()
+  password: string;
 }

@@ -1,17 +1,22 @@
 import { Inject, Injectable, OnModuleInit, forwardRef } from '@nestjs/common';
 import { CreateProductItemDto } from './dto/create-product-item.dto';
 import { UpdateProductItemDto } from './dto/update-product-item.dto';
-import { UserService } from '../user/user.service';
 import { ModuleRef } from '@nestjs/core';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ProductItemEntity } from './entities/product-item.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ProductItemService implements OnModuleInit {
-  private userService: UserService;
+  @InjectRepository(ProductItemEntity)
+  private productItemRepository: Repository<ProductItemEntity>;
+
+  // private userService: UserService;
 
   constructor(private moduleRef: ModuleRef) {}
 
   async onModuleInit() {
-    this.userService = await this.moduleRef.resolve(UserService);
+    // this.userService = await this.moduleRef.resolve(UserService);
   }
 
   create(createProductItemDto: CreateProductItemDto) {
@@ -19,7 +24,7 @@ export class ProductItemService implements OnModuleInit {
   }
 
   findAll() {
-    console.log(this.userService.findOne(1));
+    // console.log(this.userService.findOne(1));
     return `This action returns all productItem`;
   }
 
