@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { Role } from '../../enums/role.enum';
 import { ApiConfigService } from 'src/api/apiConfig.service';
 import { UserEntity } from 'src/realizations/user/entities/user.entity';
+import { ROLES_KEY } from 'src/decorators/roles.decorator';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -16,10 +17,11 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const roles = this.reflector.getAllAndMerge<Role[]>('roles', [
+    const roles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
       ctx.getHandler(),
       ctx.getClass(),
     ]);
+
     if (!roles) {
       return true;
     }

@@ -28,7 +28,6 @@ import {
   Sse,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Roles } from '../../decorators/roles.decorator';
 import { Role } from '../../enums/role.enum';
@@ -44,10 +43,10 @@ import { Response } from 'express';
 import { Observable, defer, interval, map, pipe, switchMap } from 'rxjs';
 import * as fs from 'fs';
 import * as path from 'path';
-import { subscribe } from 'diagnostics_channel';
 import { UserEntity } from './entities/user.entity';
 
 @Controller({ path: 'user' })
+@Roles(Role.USER)
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -119,8 +118,8 @@ export class UserController {
     return 'cartItems';
   }
 
-  @Roles(Role.ADMIN, Role.MANAGER, Role.USER)
   @Patch(':id')
+  @Roles(Role.ADMIN, Role.MANAGER)
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -128,8 +127,8 @@ export class UserController {
     return await this.userService.update(id, updateUserDto);
   }
 
-  @Roles(Role.ADMIN, Role.MANAGER, Role.USER)
   @Delete(':id')
+  @Roles(Role.ADMIN, Role.MANAGER)
   async remove(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.remove(id);
   }

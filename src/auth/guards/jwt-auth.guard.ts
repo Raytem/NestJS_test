@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+} from '@nestjs/common';
 import { TokenService } from 'src/auth/token/token.service';
 import { ApiConfigService } from '../../api/apiConfig.service';
 import { PayloadDto } from '../dto/payload.dto';
@@ -34,9 +39,6 @@ export class JwtAuthGuard implements CanActivate {
 
     const payloadDecoded: PayloadDto =
       await this.tokenService.validateAccessToken(token);
-    if (!payloadDecoded) {
-      return false;
-    }
 
     const user = await this.userService.findOne(payloadDecoded.userId);
     if (!user) {

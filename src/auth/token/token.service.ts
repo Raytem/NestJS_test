@@ -110,7 +110,9 @@ export class TokenService {
       .verifyAsync(accessToken, {
         secret: this.jwtCfg.accessTokenSecret,
       })
-      .catch((err) => new UnauthorizedException(err.message));
+      .catch((err) => {
+        throw new UnauthorizedException(err.message);
+      });
     return tokenPayload;
   }
 
@@ -119,7 +121,9 @@ export class TokenService {
       .verifyAsync(refreshToken, {
         secret: this.jwtCfg.refreshTokenSecret,
       })
-      .catch((err) => new UnauthorizedException(err.message));
+      .catch((err) => {
+        throw new UnauthorizedException(err.message);
+      });
     return tokenPayload;
   }
 }
