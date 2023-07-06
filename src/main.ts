@@ -12,18 +12,35 @@ import {
 import { MyLoggerService } from './my-logger/my-logger.service';
 import * as cookieParser from 'cookie-parser';
 import * as compression from 'compression';
+import * as session from 'express-session';
+import sessionOptions from 'config/cfgClasses/session.options';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import * as path from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
   });
   app.useLogger(app.get(MyLoggerService));
 
-  // app.enableShutdownHooks();
-  app.use(json(), cookieParser(), compression(), loggerMiddleware);
   app.enableVersioning({
     type: VersioningType.URI,
   });
+  // app.enableShutdownHooks();
+
+  app.enableCors({
+    origin: '*',
+    credentials: true,
+  });
+
+  app.use(
+    json(),
+    cookieParser(),
+    compression(),
+    session(sessionOptions),
+    loggerMiddleware,
+  );
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

@@ -23,6 +23,9 @@ import {
   Res,
   Query,
   Req,
+  Session,
+  Render,
+  Sse,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -38,6 +41,11 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { MyLoggerService } from 'src/my-logger/my-logger.service';
 import { Cookies } from 'src/decorators/cookies.decorator';
 import { Response } from 'express';
+import { Observable, defer, interval, map, pipe, switchMap } from 'rxjs';
+import * as fs from 'fs';
+import * as path from 'path';
+import { subscribe } from 'diagnostics_channel';
+import { UserEntity } from './entities/user.entity';
 
 @Controller({ path: 'user' })
 export class UserController {
@@ -52,16 +60,39 @@ export class UserController {
     private readonly dbConfig: ConfigType<typeof databaseConfig>,
   ) {}
 
-  @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
-    return await this.userService.create(createUserDto);
+  @Get('page')
+  showUsersPage(@Res() res: Response) {
+    res
+      .type('text/html')
+      .send(
+        fs
+          .readFileSync(path.join(process.cwd(), 'views', 'users.html'))
+          .toString(),
+      );
+  }
+
+  async getUsersMgEvent() {
+    return { data: await this.userService.findAll() } as MessageEvent;
+  }
+
+  @Sse('sse')
+  sse(): Observable<MessageEvent<any>> {
+    return interval(3000).pipe(switchMap(() => this.getUsersMgEvent()));
+  }
+
+  @Get('session')
+  async getSession(@Session() session: Record<string, any>) {
+    session.autnticated = true;
+    console.log(session);
+    console.log(session.id);
+    return session;
   }
 
   @Get()
   @Roles(Role.ADMIN)
   async findAll(
     @User(new ValidationPipe({ validateCustomDecorators: true }))
-    user: CreateUserDto,
+    user: UserEntity,
   ) {
     console.log('--Current user: ', user);
     return await this.userService.findAll();

@@ -9,41 +9,30 @@ export class FileProducer {
     private fileQueue: Queue,
   ) {}
 
-  async deleteFile(fileName: string) {
-    const path = `/Users/daniil/Desktop/nest/nest-test_1/files/${fileName}`;
-    await this.fileQueue.add(
-      'delete-file',
-      {
-        path: path,
-      },
-      {
-        delay: 10000,
-      },
-    );
+  async deleteFile(filePath: string) {
+    await this.fileQueue.add('delete-file', {
+      path: filePath,
+    });
+
+    const fileName = filePath.split('/').at(-1);
     return {
       info: `File has been deleted`,
-      fileName: fileName,
+      fileName,
     };
   }
 
-  async uploadFiles(files: Array<Express.Multer.File>) {
-    await this.fileQueue.add(
-      'upload-files',
-      {
-        files: files,
-      },
-      {
-        delay: 0,
-      },
-    );
+  // async uploadFiles(files: Array<Express.Multer.File>) {
+  //   await this.fileQueue.add('upload-files', {
+  //     files: files,
+  //   });
 
-    const totalSize = files.reduce((sum, cur) => sum + cur.size, 0);
-    const fileNames = files.map((file) => file.originalname);
+  //   const totalSize = files.reduce((sum, cur) => sum + cur.size, 0);
+  //   const fileNames = files.map((file) => file.originalname);
 
-    return {
-      info: `Files has been uploaded`,
-      totalSize_bytes: totalSize,
-      fileNames,
-    };
-  }
+  //   return {
+  //     info: `Files has been uploaded`,
+  //     totalSize_bytes: totalSize,
+  //     fileNames,
+  //   };
+  // }
 }

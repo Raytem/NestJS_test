@@ -2,6 +2,7 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role } from '../../enums/role.enum';
 import { ApiConfigService } from 'src/api/apiConfig.service';
+import { UserEntity } from 'src/realizations/user/entities/user.entity';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -23,9 +24,10 @@ export class RolesGuard implements CanActivate {
       return true;
     }
     const request = ctx.switchToHttp().getRequest();
-    const user = request.user;
+    const user: UserEntity = request.user;
+    const userRoles = user?.roles.map((role) => role.name);
 
-    return this.matchRoles(roles, user?.roles || []);
+    return this.matchRoles(roles, userRoles || []);
   }
 
   private matchRoles(routeRoles: Role[], userRoles: Role[]) {

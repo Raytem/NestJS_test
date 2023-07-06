@@ -1,4 +1,11 @@
-import { Inject, Injectable, Logger, Scope, forwardRef } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+  Scope,
+  forwardRef,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ProductItemService } from '../product-item/product-item.service';
@@ -13,6 +20,8 @@ import { NotificationService } from 'src/schedule/notification.service';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { UserPrintedEvent } from './events/user-printed.event';
 import { MyLoggerService } from 'src/my-logger/my-logger.service';
+import { HttpService } from '@nestjs/axios';
+import { delay, firstValueFrom, lastValueFrom, map } from 'rxjs';
 
 @Injectable({
   // scope: Scope.REQUEST,
@@ -28,6 +37,8 @@ export class UserService {
     @InjectRepository(RoleEntity)
     private roleRepository: Repository<RoleEntity>,
 
+    private httpService: HttpService,
+
     private eventEmitter: EventEmitter2,
 
     // @Inject(REQUEST) private request,
@@ -39,27 +50,19 @@ export class UserService {
     private productItemService: ProductItemService,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
-    const defaultUserRole = await this.roleRepository.findOneBy({
-      name: Role.USER,
-    });
-
-    const newUser = await this.userRepository.save({
-      ...createUserDto,
-      roles: [defaultUserRole],
-    });
-    return new UserEntity(newUser);
-  }
-
   async findAll() {
     // console.log(this.productItemService.findOne(1));
     // console.log('--Request (tenant-strategy):', this.request);
+
+    // return { data: await this.userRepository.find() } as MessageEvent;
     return await this.userRepository.find();
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, name?: string) {
     this.eventEmitter.emit('user.printed', new UserPrintedEvent(id));
-    return await this.userRepository.findBy({ id });
+    return name
+      ? await this.userRepository.findOneBy({ name })
+      : await this.userRepository.findOneBy({ id });
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {

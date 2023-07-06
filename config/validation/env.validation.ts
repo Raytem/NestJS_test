@@ -36,10 +36,27 @@ export class AppConfig {
   @IsString()
   DB_NAME: string;
 
+  //jwt
+  @IsString()
+  ACCESS_TOKEN_SECRET: string;
+  @IsString()
+  ACCESS_TOKEN_LIFETIME: string;
+  @IsString()
+  REFRESH_TOKEN_SECRET: string;
+  @IsString()
+  REFRESH_TOKEN_LIFETIME: string;
+  @IsNumberString()
+  REFRESH_COOKIE_LIFETIME: number;
+
+  //redis
   @IsString()
   REDIS_HOST: string;
   @IsNumberString()
   REDIS_PORT: number;
+
+  //multer
+  @IsString()
+  FILE_DESTINATION: string;
 
   //api
   @IsBooleanString()

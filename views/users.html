@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1>Users</h1>
+</body>
+</html>
+
+<script>
+  const eventSource = new EventSource('/user/sse');
+  eventSource.onmessage = ({ data }) => {
+    document.querySelectorAll('h2').forEach(elem => elem.remove());
+
+    const users = JSON.parse(data).data;
+    console.log(users)
+    console.log(1)
+
+    users.forEach(user => {
+      const h2 = document.createElement('h2')
+      h2.innerText = `${user.name} ${user.surname}, ${user.birthday}`
+      document.body.appendChild(h2);
+    })
+  }
+</script>

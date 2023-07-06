@@ -10,6 +10,7 @@ import { UserSubscriber } from 'src/typeorm_subscribers/user.subscriber';
 import { NotificationService } from 'src/schedule/notification.service';
 import { ProductItemModule } from '../product-item/product-item.module';
 import { MyLoggerService } from 'src/my-logger/my-logger.service';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -17,6 +18,8 @@ import { MyLoggerService } from 'src/my-logger/my-logger.service';
     TypeOrmModule.forFeature([ProductItemEntity]),
     TypeOrmModule.forFeature([RoleEntity]),
     ProductItemModule,
+    HttpModule,
+    UserModule,
   ],
   controllers: [UserController],
   providers: [
@@ -24,7 +27,8 @@ import { MyLoggerService } from 'src/my-logger/my-logger.service';
     ProductItemService,
     UserSubscriber,
     NotificationService,
+    UserService,
   ],
-  exports: [TypeOrmModule],
+  exports: [UserService, TypeOrmModule],
 })
 export class UserModule {}

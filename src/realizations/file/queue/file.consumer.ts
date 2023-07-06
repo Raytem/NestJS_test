@@ -6,6 +6,7 @@ import {
 import { Job } from 'bull';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
 @Processor('file-operation')
 export class FileConsumer {
@@ -23,7 +24,7 @@ export class FileConsumer {
     const jobData: { files: Array<Express.Multer.File> } = job.data;
     const files = jobData.files;
     // eslint-disable-next-line prettier/prettier
-    const uploadFolder = path.join(process.cwd(), 'staticFiles');
+    const uploadFolder = path.join(process.cwd(), 'uploads');
 
     try {
       await fs.access(uploadFolder);
@@ -34,7 +35,7 @@ export class FileConsumer {
     try {
       files.forEach(async (file: Express.Multer.File) => {
         await fs.writeFile(
-          path.join(uploadFolder, file.originalname),
+          path.join(uploadFolder, `${uuidv4()}_${file.originalname}`),
           Buffer.from(file.buffer),
         );
       });

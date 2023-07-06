@@ -14,4 +14,7 @@ export class CreateUserDto {
 
   @IsString()
   password: string;
+
+  @IsString()
+  userAgent: string;
 }

@@ -4,6 +4,7 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from '../../../enums/role.enum';
@@ -14,7 +15,9 @@ import { Exclude, Transform } from 'class-transformer';
 
 @Entity('User')
 export class UserEntity extends AbstractBaseEntity {
-  @Column('varchar')
+  @Column('varchar', {
+    unique: true,
+  })
   name: string;
 
   @Column('varchar')

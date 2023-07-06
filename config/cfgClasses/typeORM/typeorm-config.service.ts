@@ -3,6 +3,7 @@ import { ConfigService, ConfigType } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { databaseConfig } from 'config/database.config';
 import { NodeEnv } from 'config/validation/env.validation';
+import { TokenEntity } from 'src/auth/entities/token.entity';
 import { ProductItemEntity } from 'src/realizations/product-item/entities/product-item.entity';
 import { RoleEntity } from 'src/realizations/role/entities/role.entity';
 import { UserEntity } from 'src/realizations/user/entities/user.entity';
@@ -26,7 +27,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       password: this.dbConfig.password,
       synchronize:
         this.configService.get('nodeEnv') === NodeEnv.Production ? false : true,
-      entities: [UserEntity, RoleEntity, ProductItemEntity],
+      entities: [UserEntity, TokenEntity, RoleEntity, ProductItemEntity],
       retryAttempts: 1,
     };
   }

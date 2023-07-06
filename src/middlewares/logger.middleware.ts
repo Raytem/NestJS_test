@@ -8,6 +8,5 @@ export function loggerMiddleware(req, res: Response, next: NextFunction) {
       }` +
       ``,
   );
-  req.user = { name: 'raytem', surname: 'surname', birthday: "2023-06-21", password: "password" };
   next();
 }

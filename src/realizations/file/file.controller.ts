@@ -16,6 +16,7 @@ import {
   Res,
   StreamableFile,
   CacheTTL,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { FileService } from './file.service';
 import { CreateFileDto } from './dto/create-file.dto';
@@ -25,7 +26,10 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { createReadStream } from 'fs';
 import { Response } from 'express';
 import { HttpCacheInterceptor } from 'src/interceptors/httpCache.interceptor';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/enums/role.enum';
 
+@Roles(Role.USER)
 @Controller('file')
 export class FileController {
   constructor(
@@ -41,12 +45,12 @@ export class FileController {
         .addFileTypeValidator({
           fileType: /png|jpg|jpeg|/i,
         })
-        .addMaxSizeValidator({ maxSize: 10e7 })
+        // .addMaxSizeValidator({ maxSize: 10e7 })
         .build(),
     )
     files: Express.Multer.File[],
   ) {
-    return this.fileProducer.uploadFiles(files);
+    return this.fileService.uploadFiles(files);
   }
 
   @Get(':fileOriginalName')
@@ -54,11 +58,8 @@ export class FileController {
     @Res() res,
     @Param('fileOriginalName') fileOriginalName: string,
   ) {
-    const filePath = await this.fileService.getDownloadPath(fileOriginalName);
+    const filePath = await this.fileService.getFilePath(fileOriginalName);
     const file = createReadStream(filePath);
-    res.set({
-      'Content-disposition': `inline; filename="${fileOriginalName}"`,
-    });
     file.pipe(res);
   }
 
@@ -67,16 +68,22 @@ export class FileController {
     @Res() res: Response,
     @Param('fileOriginalName') fileOriginalName: string,
   ) {
-    const filePath = await this.fileService.getDownloadPath(fileOriginalName);
+    const filePath = await this.fileService.getFilePath(fileOriginalName);
     const file = createReadStream(filePath);
+
+    const parsedFileName =
+      fileOriginalName.length > 37
+        ? fileOriginalName.substring(37)
+        : fileOriginalName;
     res.set({
-      'Content-disposition': `attachment; filename="${fileOriginalName}"`,
+      'Content-disposition': `attachment; filename="${parsedFileName}"`,
     });
     file.pipe(res);
   }
 
-  @Delete(':filename')
-  remove(@Param('filename') filename: string) {
-    return this.fileProducer.deleteFile(filename);
+  @Delete(':fileOriginalName')
+  async remove(@Param('fileOriginalName') fileOriginalName: string) {
+    const filePath = await this.fileService.getFilePath(fileOriginalName);
+    return this.fileProducer.deleteFile(filePath);
   }
 }
