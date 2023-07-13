@@ -4,7 +4,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('Token')
 export class TokenEntity extends AbstractBaseEntity {
-  @ManyToOne(() => UserEntity, (user) => user.id)
+  @ManyToOne(() => UserEntity, (user) => user.id, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 

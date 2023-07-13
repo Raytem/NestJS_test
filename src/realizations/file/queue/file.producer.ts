@@ -9,16 +9,10 @@ export class FileProducer {
     private fileQueue: Queue,
   ) {}
 
-  async deleteFile(filePath: string) {
-    await this.fileQueue.add('delete-file', {
-      path: filePath,
+  async deleteFiles(filePaths: string[]) {
+    await this.fileQueue.add('delete-files', {
+      paths: filePaths,
     });
-
-    const fileName = filePath.split('/').at(-1);
-    return {
-      info: `File has been deleted`,
-      fileName,
-    };
   }
 
   // async uploadFiles(files: Array<Express.Multer.File>) {

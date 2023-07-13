@@ -8,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ProductItemService } from '../product-item/product-item.service';
 import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
@@ -22,6 +21,10 @@ import { UserPrintedEvent } from './events/user-printed.event';
 import { MyLoggerService } from 'src/my-logger/my-logger.service';
 import { HttpService } from '@nestjs/axios';
 import { delay, firstValueFrom, lastValueFrom, map } from 'rxjs';
+import { ProductEntity } from '../product/entities/product.entity';
+import { NoSuchUserException } from 'src/exceptions/NoSuchUser.exception';
+import { ProductService } from '../product/product.service';
+import { deleteFilesEvent } from '../file/file-emitter-events';
 
 @Injectable({
   // scope: Scope.REQUEST,
@@ -37,21 +40,19 @@ export class UserService {
     @InjectRepository(RoleEntity)
     private roleRepository: Repository<RoleEntity>,
 
+    @InjectRepository(ProductEntity)
+    private productRepository: Repository<ProductEntity>,
+
     private httpService: HttpService,
 
     private eventEmitter: EventEmitter2,
 
     // @Inject(REQUEST) private request,
 
-    private configService: ConfigService,
-
     private notificationService: NotificationService,
-
-    private productItemService: ProductItemService,
   ) {}
 
   async findAll() {
-    // console.log(this.productItemService.findOne(1));
     // console.log('--Request (tenant-strategy):', this.request);
 
     // return { data: await this.userRepository.find() } as MessageEvent;
@@ -65,9 +66,19 @@ export class UserService {
       : await this.userRepository.findOneBy({ id });
   }
 
+  async findProducts(id: number) {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new NoSuchUserException();
+    }
+    return await this.productRepository.findBy({ user: user });
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.findOneBy({ id });
-
+    if (!user) {
+      throw new NoSuchUserException();
+    }
     await this.userRepository.update(id, updateUserDto);
 
     return await this.userRepository.findOneBy({ id });
@@ -75,7 +86,20 @@ export class UserService {
 
   async remove(id: number) {
     const user = await this.userRepository.findOneBy({ id });
-    await this.userRepository.delete(id);
+    if (!user) {
+      throw new NoSuchUserException();
+    }
+
+    const products = await this.findProducts(user.id);
+    if (products.length) {
+      const files = products.map((prod) => prod.photos).flat();
+      if (files.length) {
+        const fileNames = files.map((file) => file.name);
+        await this.eventEmitter.emit(deleteFilesEvent, fileNames);
+      }
+    }
+    await this.userRepository.remove(user);
+
     return user;
   }
 

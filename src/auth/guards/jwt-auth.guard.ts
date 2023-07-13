@@ -1,10 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-  BadRequestException,
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { TokenService } from 'src/auth/token/token.service';
 import { ApiConfigService } from '../../api/apiConfig.service';
 import { PayloadDto } from '../dto/payload.dto';

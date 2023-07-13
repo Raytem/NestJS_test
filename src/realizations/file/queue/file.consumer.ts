@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { Process, Processor } from '@nestjs/bull';
 import {
   BadRequestException,
@@ -10,12 +11,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Processor('file-operation')
 export class FileConsumer {
-  @Process('delete-file')
-  async deleteFile(job: Job) {
+  @Process('delete-files')
+  async deleteFiles(job: Job) {
     const jobData: any = job.data;
-    await fs.unlink(jobData.path).catch((err) => {
-      console.log(new BadRequestException(err.message));
-    });
+    for (let path of jobData.paths) {
+      await fs.unlink(path).catch((err) => {
+        console.log(new BadRequestException(err.message));
+      });
+    }
     return {};
   }
 

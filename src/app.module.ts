@@ -8,7 +8,6 @@ import {
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './realizations/user/user.module';
-import { ProductItemModule } from './realizations/product-item/product-item.module';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpExceptionFilter } from './exception-filters/http-exception.filter';
 import { RolesGuard } from './auth/guards/roles.guard';
@@ -27,23 +26,22 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationService } from './schedule/notification.service';
 import { redisConfig } from 'config/redis.config';
 import { BullModule } from '@nestjs/bull';
-import { TypeOrmConfigService } from 'config/cfgClasses/typeORM/typeorm-config.service';
-import { CacheConfigService } from 'config/cfgClasses/cache/cache-config.service';
-import { BullConfigService } from 'config/cfgClasses/bull/bull-config.service';
+import { TypeOrmConfigService } from 'config/cfgClasses/typeorm-config.service';
+import { CacheConfigService } from 'config/cfgClasses/cache-config.service';
+import { BullConfigService } from 'config/cfgClasses/bull-config.service';
 import { TimeoutInterceptor } from './interceptors/timeout.interceptor';
 import { FileModule } from './realizations/file/file.module';
 import { MyLoggerModule } from './my-logger/my-logger.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { HttpModule } from '@nestjs/axios';
-import { HttpConfigService } from 'config/cfgClasses/http/http-config.service';
+import { HttpConfigService } from 'config/cfgClasses/http-config.service';
 import { GetawayModule } from './getaway/getaway.module';
 import { AuthModule } from './auth/auth.module';
 import { jwtConfig } from 'config/jwt.config';
 import { TokenModule } from './auth/token/token.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
-import { MulterModule } from '@nestjs/platform-express';
-import { MulterConfigService } from 'config/cfgClasses/multer/multer-config.service';
 import { multerConfig } from 'config/multer.config';
+import { ProductModule } from './realizations/product/product.module';
 
 @Module({
   imports: [
@@ -81,8 +79,8 @@ import { multerConfig } from 'config/multer.config';
     AuthModule,
     TokenModule,
     UserModule,
-    ProductItemModule,
     RoleModule,
+    ProductModule,
     FileModule,
     MyLoggerModule,
     GetawayModule,

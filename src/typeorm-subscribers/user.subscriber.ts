@@ -5,13 +5,16 @@ import {
   EntitySubscriberInterface,
   EventSubscriber,
   LoadEvent,
+  RecoverEvent,
 } from 'typeorm';
 
 @EventSubscriber()
-export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
-  constructor(dataSource: DataSource) {
-    dataSource.subscribers.push(this);
-  }
+export class UserEntitySubscriber
+  implements EntitySubscriberInterface<UserEntity>
+{
+  // constructor(dataSource: DataSource) {
+  //   dataSource.subscribers.push(this);
+  // }
 
   listenTo(): string | Function {
     return UserEntity;
@@ -23,5 +26,9 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
   ): void | Promise<any> {
     // console.log(entity);
     console.log('----dbData----');
+  }
+
+  beforeRemove(event: RecoverEvent<UserEntity>): void | Promise<any> {
+    console.log('---rmUser');
   }
 }

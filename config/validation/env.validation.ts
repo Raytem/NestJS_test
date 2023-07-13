@@ -23,6 +23,12 @@ export class AppConfig {
   PORT: number;
   @IsEnum(NodeEnv)
   NODE_ENV: NodeEnv;
+  @IsString()
+  SERVER_HOST: string;
+  @IsString()
+  SERVER_URL: string;
+  @IsString()
+  CLIENT_URL: string;
 
   //database
   @IsString()

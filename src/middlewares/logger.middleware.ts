@@ -1,6 +1,7 @@
 import { NextFunction } from 'express';
 
 export function loggerMiddleware(req, res: Response, next: NextFunction) {
+  req.fileNames = [];
   console.log(
     `---> Method: ${req.method}, Path: ${req.url},\n` +
       `Body: ${

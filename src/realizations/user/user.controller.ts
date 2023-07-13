@@ -44,6 +44,7 @@ import { Observable, defer, interval, map, pipe, switchMap } from 'rxjs';
 import * as fs from 'fs';
 import * as path from 'path';
 import { UserEntity } from './entities/user.entity';
+import { Public } from 'src/decorators/public-route.decorator';
 
 @Controller({ path: 'user' })
 @Roles(Role.USER)
@@ -59,6 +60,7 @@ export class UserController {
     private readonly dbConfig: ConfigType<typeof databaseConfig>,
   ) {}
 
+  //---Test_Routes---
   @Get('page')
   showUsersPage(@Res() res: Response) {
     res
@@ -87,6 +89,19 @@ export class UserController {
     return session;
   }
 
+  @Get('setCookies')
+  async setCookies(@Res({ passthrough: true }) res: Response) {
+    res.cookie('name', 'some', { httpOnly: true, maxAge: 40000 });
+    return 0;
+  }
+  //------==-------
+
+  @Public()
+  @Get(':userId/products')
+  async findProducts(@Param('userId', ParseIntPipe) userId: number) {
+    return await this.userService.findProducts(userId);
+  }
+
   @Get()
   @Roles(Role.ADMIN)
   async findAll(
@@ -97,25 +112,10 @@ export class UserController {
     return await this.userService.findAll();
   }
 
-  @Get('setCookies')
-  async setCookies(@Res({ passthrough: true }) res: Response) {
-    res.cookie('name', 'some', { httpOnly: true, maxAge: 40000 });
-    return 0;
-  }
-
-  // @UseInterceptors(HttpCacheInterceptor)
-  // @CacheTTL(1000 * 10)
   @Get(':id')
   @Roles(Role.ADMIN, Role.MANAGER)
-  async findOne(@Param('id', ParseIntPipe) id: number, @Cookies() cookies) {
-    console.log(JSON.stringify(cookies));
+  async findOne(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.findOne(id);
-  }
-
-  @Get(':id/cartItems')
-  @Roles(Role.USER)
-  async getCartItems(@Param('id', ParseIntPipe) id: number) {
-    return 'cartItems';
   }
 
   @Patch(':id')

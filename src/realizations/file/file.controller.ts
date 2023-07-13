@@ -17,6 +17,8 @@ import {
   StreamableFile,
   CacheTTL,
   ParseUUIDPipe,
+  Req,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { FileService } from './file.service';
 import { CreateFileDto } from './dto/create-file.dto';
@@ -28,8 +30,9 @@ import { Response } from 'express';
 import { HttpCacheInterceptor } from 'src/interceptors/httpCache.interceptor';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/enums/role.enum';
+import { Public } from 'src/decorators/public-route.decorator';
+import { UploadedFileNames } from 'src/decorators/uploadedFileNames.decorator';
 
-@Roles(Role.USER)
 @Controller('file')
 export class FileController {
   constructor(
@@ -37,53 +40,56 @@ export class FileController {
     private fileProducer: FileProducer,
   ) {}
 
-  @Post()
-  @UseInterceptors(FilesInterceptor('file'))
-  async uploadFile(
-    @UploadedFiles(
-      new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: /png|jpg|jpeg|/i,
-        })
-        // .addMaxSizeValidator({ maxSize: 10e7 })
-        .build(),
-    )
-    files: Express.Multer.File[],
-  ) {
-    return this.fileService.uploadFiles(files);
+  @Roles(Role.ADMIN, Role.MANAGER)
+  @Get('json')
+  async getAll() {
+    return await this.fileService.findAll();
   }
 
-  @Get(':fileOriginalName')
-  async findOne(
-    @Res() res,
-    @Param('fileOriginalName') fileOriginalName: string,
+  @Roles(Role.ADMIN, Role.MANAGER)
+  @Get('json/:id')
+  async getOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.fileService.findOne(id);
+  }
+
+  @Roles(Role.USER)
+  @Post(':productId')
+  @UseInterceptors(FilesInterceptor('file'))
+  async uploadFile(
+    @UploadedFiles(ParseFilePipe) files: Express.Multer.File[],
+    @Param('productId', ParseIntPipe) productId: number,
+    @UploadedFileNames() fileNames: string[],
   ) {
-    const filePath = await this.fileService.getFilePath(fileOriginalName);
-    const file = createReadStream(filePath);
+    return this.fileService.uploadFiles(fileNames, productId, null);
+  }
+
+  @Public()
+  @Get(':id')
+  async findOne(@Res() res, @Param('id', ParseIntPipe) id: number) {
+    const filePathAndName = await this.fileService.getFilePathAndName(id);
+    const file = createReadStream(filePathAndName.path);
     file.pipe(res);
   }
 
-  @Get('/download/:fileOriginalName')
+  @Public()
+  @Roles(Role.ADMIN)
+  @Get('/download/:id')
   async downloadOne(
     @Res() res: Response,
-    @Param('fileOriginalName') fileOriginalName: string,
+    @Param('id', ParseIntPipe) id: number,
   ) {
-    const filePath = await this.fileService.getFilePath(fileOriginalName);
-    const file = createReadStream(filePath);
+    const filePathAndName = await this.fileService.getFilePathAndName(id);
+    const file = createReadStream(filePathAndName.path);
 
-    const parsedFileName =
-      fileOriginalName.length > 37
-        ? fileOriginalName.substring(37)
-        : fileOriginalName;
     res.set({
-      'Content-disposition': `attachment; filename="${parsedFileName}"`,
+      'Content-disposition': `attachment; filename="${filePathAndName.name}"`,
     });
     file.pipe(res);
   }
 
-  @Delete(':fileOriginalName')
-  async remove(@Param('fileOriginalName') fileOriginalName: string) {
-    const filePath = await this.fileService.getFilePath(fileOriginalName);
-    return this.fileProducer.deleteFile(filePath);
+  @Roles(Role.USER)
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return await this.fileService.remove(id);
   }
 }

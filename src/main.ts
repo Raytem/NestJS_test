@@ -28,8 +28,9 @@ async function bootstrap() {
   });
   // app.enableShutdownHooks();
 
+  const configService = app.get(ConfigService);
   app.enableCors({
-    origin: '*',
+    origin: ['*', configService.get('app.clientUrl')],
     credentials: true,
   });
 
@@ -50,8 +51,7 @@ async function bootstrap() {
 
   ContextIdFactory.apply(new AggregateByTenantContextIdStrategy());
 
-  const configService = app.get(ConfigService);
-  const port = configService.get('port');
+  const port = configService.get('app.port');
   await app.listen(port);
   console.log(`--> Server started on port: ${port}`);
 }

@@ -4,14 +4,15 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
-import { Role } from '../../../enums/role.enum';
-import { ProductItemEntity } from 'src/realizations/product-item/entities/product-item.entity';
 import { AbstractBaseEntity } from 'src/realizations/AbstractBase.entity';
 import { RoleEntity } from 'src/realizations/role/entities/role.entity';
 import { Exclude, Transform } from 'class-transformer';
+import { ProductEntity } from 'src/realizations/product/entities/product.entity';
+import { TokenEntity } from 'src/auth/entities/token.entity';
 
 @Entity('User')
 export class UserEntity extends AbstractBaseEntity {
@@ -34,6 +35,12 @@ export class UserEntity extends AbstractBaseEntity {
   @ManyToMany(() => RoleEntity, (role) => role.users, { eager: true })
   @JoinTable()
   roles: RoleEntity[];
+
+  @OneToMany(() => ProductEntity, (product) => product.user)
+  products: ProductEntity[];
+
+  @OneToMany(() => TokenEntity, (token) => token.user)
+  tokens: TokenEntity[];
 
   constructor(partial: Partial<UserEntity>) {
     super();
